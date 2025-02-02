@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:tech_shop_flutter/models/image.dart';
 
 class Product {
@@ -31,6 +33,7 @@ class Product {
 
   // Factory method to create a Product object from a JSON map
   factory Product.fromJson(Map<String, dynamic> json) {
+   
     return Product(
       id: json['id'] ?? -1,
       available: json['available'] ?? '',

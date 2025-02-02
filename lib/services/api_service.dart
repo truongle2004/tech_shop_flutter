@@ -17,7 +17,7 @@ class ApiService {
     final res = await http.get(Uri.parse('$baseUrl$endpoint'));
 
     if (res.statusCode == 200) {
-      return jsonDecode(res.body);
+      return jsonDecode(utf8.decode(res.bodyBytes));
     } else {
       print('endpoint: $baseUrl$endpoint');
       throw Exception('Failed to load data, Status Code: ${res.statusCode}');

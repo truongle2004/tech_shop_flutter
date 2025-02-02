@@ -80,7 +80,6 @@ class _HomeScreenState extends State<HomeScreen> {
                     itemBuilder: (context, index) {
                       var category = data[index].keys.first;
                       ProductData products = data[index][category]!;
-                      print(category);
                       return Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
