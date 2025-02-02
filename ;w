@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:tech_shop_flutter/models/product.dart';
@@ -17,105 +15,55 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   late Future<ProductData> productsFuture;
   late Future<List<String>> suggestCategoryFuture;
-  late Future<List<Map<String, ProductData>>> categoryProductFuture;
-
-  Future<List<Map<String, ProductData>>> fetchProducts() async {
-    List<Map<String, ProductData>> categoryProductList = [];
-
-    List<String> categories =
-        await ApiService().fetchCategorySuggestionsHomeScreen();
-
-    await Future.forEach(categories, (category) async {
-      ProductData products =
-          await ApiService().fetchProducts(category: category);
-      categoryProductList.add({category: products});
-    });
-
-    return categoryProductList;
-  }
 
   @override
   void initState() {
     super.initState();
     productsFuture = ApiService().fetchProducts();
     suggestCategoryFuture = ApiService().fetchCategorySuggestionsHomeScreen();
-    categoryProductFuture = fetchProducts();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: TextField(
-            decoration: InputDecoration(
-                hintText: 'Search',
-                hintStyle: TextStyle(color: Colors.black),
-                filled: true,
-                fillColor: Colors.white24,
-                border: OutlineInputBorder()),
-            style: TextStyle(color: Colors.black, fontSize: 18),
-            onChanged: (query) {
-              print(query);
-            },
-          ),
-          actions: [
-            IconButton(
-              onPressed: () {},
-              icon: const Icon(Icons.search),
-            ),
-            IconButton(onPressed: () {}, icon: const Icon(Icons.notifications))
-          ],
+      appBar: AppBar(
+        title: TextField(
+          decoration: InputDecoration(
+              hintText: 'Search',
+              hintStyle: TextStyle(color: Colors.black),
+              filled: true,
+              fillColor: Colors.white24,
+              border: OutlineInputBorder()),
+          style: TextStyle(color: Colors.black, fontSize: 18),
+          onChanged: (query) {
+            print(query);
+          },
         ),
-        body: FutureBuilder<List<Map<String, ProductData>>>(
-            future: categoryProductFuture,
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return _buildShimmerLoading();
-              } else if (snapshot.hasError) {
-                return _buildErrorState(snapshot.error.toString());
-              } else if (snapshot.hasData) {
-                var data = snapshot.data!;
-                return ListView.builder(
-                    itemCount: data.length,
-                    itemBuilder: (context, index) {
-                      var category = data[index].keys.first;
-                      ProductData products = data[index][category]!;
-                      print(category);
-                      return Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Padding(
-                              padding: const EdgeInsets.all(5.0),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text(
-                                    category,
-                                    style: const TextStyle(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.bold),
-                                  ),
-                                  TextButton(
-                                      onPressed: () {
-                                        Navigator.pushNamed(
-                                            context, '/category',
-                                            arguments: category);
-                                      },
-                                      child: const Text('See all'))
-                                ],
-                              )),
-                          const Divider(),
-                          _buildProductList(products.content),
-                        ],
-                      );
-                    });
-              } else {
-                return _buildEmptyState();
-              }
-            }));
+        actions: [
+          IconButton(
+            onPressed: () {},
+            icon: const Icon(Icons.search),
+          ),
+          IconButton(onPressed: () {}, icon: const Icon(Icons.notifications))
+        ],
+      ),
+      body: FutureBuilder<ProductData>(
+        future: productsFuture,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return _buildShimmerLoading(); // Show shimmer effect while loading
+          } else if (snapshot.hasError) {
+            return _buildErrorState(snapshot.error.toString());
+          } else if (snapshot.hasData && snapshot.data!.content.isNotEmpty) {
+            return _buildProductList(snapshot.data!.content);
+          } else {
+            return _buildEmptyState();
+          }
+        },
+      ),
+    );
   }
-
+  
   /// Loading Placeholder with Shimmer
   Widget _buildShimmerLoading() {
     return ListView.builder(

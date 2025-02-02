@@ -1,25 +1,45 @@
 import 'dart:convert';
-
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:tech_shop_flutter/models/product_data.dart';
 import 'package:http/http.dart' as http;
+import 'package:tech_shop_flutter/models/category.dart';
+import 'package:tech_shop_flutter/models/product_data.dart';
 
 class ApiService {
-  Future<ProductData> fetchProducts() async {
-    final String? url = dotenv.env['PRODUCT_URL'];
+  final String baseUrl = dotenv.env['PRODUCT_URL'] ?? '';
 
-    if (url == null || url.isEmpty) {
+  ApiService() {
+    if (baseUrl.isEmpty) {
       throw Exception('PRODUCT_URL is not defined in the .env file');
     }
+  }
 
-    final res = await http
-        .get(Uri.parse('$url?pageNo=1&pageSize=10&category=laptop-gaming'));
+  Future<dynamic> _get(String endpoint) async {
+    final res = await http.get(Uri.parse('$baseUrl$endpoint'));
 
     if (res.statusCode == 200) {
-      return ProductData.fromJson(jsonDecode(res.body));
+      return jsonDecode(res.body);
     } else {
-      throw Exception(
-          'Failed to load products, Status Code: ${res.statusCode}');
+      print('endpoint: $baseUrl$endpoint');
+      throw Exception('Failed to load data, Status Code: ${res.statusCode}');
     }
+  }
+
+  Future<ProductData> fetchProducts(
+      {int pageNo = 1,
+      int pageSize = 10,
+      String category = 'laptop-gaming'}) async {
+    final data =
+        await _get('?pageNo=$pageNo&pageSize=$pageSize&category=$category');
+    return ProductData.fromJson(data);
+  }
+
+  Future<List<Category>> fetchAllProductCategorySlug() async {
+    final data = await _get('/category');
+    return List<Category>.from(data.map((x) => Category.fromJson(x)));
+  }
+
+  Future<List<String>> fetchCategorySuggestionsHomeScreen() async {
+    final data = await _get('/suggestions');
+    return List<String>.from(data);
   }
 }
