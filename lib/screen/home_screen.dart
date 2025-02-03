@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:tech_shop_flutter/models/product.dart';
@@ -159,7 +157,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 productsFuture = ApiService().fetchProducts();
               });
             },
-            child: const Text("Retry"),
+            child: const Text('Retry'),
           ),
         ],
       ),
@@ -195,6 +193,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildProductCard(Product product) {
     return Container(
       width: 150,
+      height: 250,
       margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
       decoration: BoxDecoration(
         color: Colors.white,
@@ -216,8 +215,8 @@ class _HomeScreenState extends State<HomeScreen> {
               product.images.isNotEmpty
                   ? product.images[0].src
                   : 'https://via.placeholder.com/150',
-              height: 100,
-              width: double.infinity,
+              height: 150,
+              width: 150,
               fit: BoxFit.cover,
               errorBuilder: (context, error, stackTrace) {
                 return const Icon(Icons.broken_image,
@@ -225,41 +224,38 @@ class _HomeScreenState extends State<HomeScreen> {
               },
             ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 2),
 
-          // Product Title
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8),
-            child: Text(
-              product.title,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  // Product Title
+                  Text(
+                    product.title,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                        fontSize: 12, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 1),
+
+                  // Product Price
+                  Text(
+                    FormatCurrency().format(product.price),
+                    style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.red),
+                  ),
+                ],
+              ),
             ),
           ),
-          const SizedBox(height: 6),
-
-          // Product Price
-          Text(
-            FormatCurrency().format(product.price),
-            style: const TextStyle(
-                fontSize: 16, fontWeight: FontWeight.bold, color: Colors.red),
-          ),
-          const SizedBox(height: 8),
-
-          // Buy Button
-          // ElevatedButton(
-          //   onPressed: () {
-          //     print("Buy ${product.title}");
-          //   },
-          //   style: ElevatedButton.styleFrom(
-          //     backgroundColor: Colors.blue,
-          //     padding: const EdgeInsets.symmetric(horizontal: 16),
-          //     shape: RoundedRectangleBorder(
-          //         borderRadius: BorderRadius.circular(8)),
-          //   ),
-          //   child: const Text("Buy Now", style: TextStyle(color: Colors.white)),
-          // ),
+          const SizedBox(height: 10),
+          // Product Title
         ],
       ),
     );
