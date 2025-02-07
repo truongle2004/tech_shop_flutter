@@ -15,6 +15,7 @@ class DetailScreen extends StatefulWidget {
 
 class _DetailScreenState extends State<DetailScreen> {
   late Future<Product> productFuture;
+  int indexImageSelected = 0;
 
   @override
   void initState() {
@@ -54,12 +55,72 @@ class _DetailScreenState extends State<DetailScreen> {
                         width: MediaQuery.of(context).size.width,
                         child: AspectRatio(
                             aspectRatio: 1,
-                            child: Image.network(data.images[0].src))),
+                            child: Image.network(
+                                data.images[indexImageSelected].src))),
+                    Row(
+                      children: List.generate(
+                        data.images.length,
+                        (index) => GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              indexImageSelected = index;
+                            });
+                          },
+                          child: Padding(
+                            padding:
+                                const EdgeInsets.symmetric(horizontal: 8.0),
+                            child: Container(
+                              decoration: BoxDecoration(
+                                border: Border.all(
+                                  color: index == indexImageSelected
+                                      ? Colors.red
+                                      : Colors.transparent,
+                                  width: 2,
+                                ),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Image.network(
+                                data.images[index].src,
+                                width: 50, // Adjust size as needed
+                                height: 50,
+                                fit: BoxFit.cover,
+                                loadingBuilder:
+                                    (context, child, loadingProgress) {
+                                  if (loadingProgress == null) return child;
+                                  return SizedBox(
+                                    width: 50,
+                                    height: 50,
+                                    child: Center(
+                                      child: CircularProgressIndicator(
+                                        value: loadingProgress
+                                                    .expectedTotalBytes !=
+                                                null
+                                            ? loadingProgress
+                                                    .cumulativeBytesLoaded /
+                                                (loadingProgress
+                                                        .expectedTotalBytes ??
+                                                    1)
+                                            : null,
+                                      ),
+                                    ),
+                                  );
+                                },
+                                errorBuilder: (context, error, stackTrace) {
+                                  return const Icon(Icons.broken_image,
+                                      size: 50, color: Colors.grey);
+                                },
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16.0),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
+                          const SizedBox(height: 16),
                           Text(
                             data.title,
                             style: const TextStyle(
