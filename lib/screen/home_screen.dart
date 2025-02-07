@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:tech_shop_flutter/models/product.dart';
 import 'package:tech_shop_flutter/models/product_data.dart';
+import 'package:tech_shop_flutter/provider/product_provider.dart';
+import 'package:tech_shop_flutter/screen/detail_screen.dart';
 import 'package:tech_shop_flutter/services/api_service.dart';
 import 'package:tech_shop_flutter/utils/format_currency.dart';
 
@@ -59,7 +62,7 @@ class _HomeScreenState extends State<HomeScreen> {
           actions: [
             IconButton(
               onPressed: () {},
-              icon: const Icon(Icons.search),
+              icon: const Icon(Icons.shopping_cart),
             ),
             IconButton(onPressed: () {}, icon: const Icon(Icons.notifications))
           ],
@@ -191,73 +194,81 @@ class _HomeScreenState extends State<HomeScreen> {
 
   ///  Product Card UI
   Widget _buildProductCard(Product product) {
-    return Container(
-      width: 150,
-      height: 250,
-      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-              color: Colors.grey.withOpacity(0.2),
-              blurRadius: 6,
-              spreadRadius: 2)
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          // Product Image
-          ClipRRect(
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
-            child: Image.network(
-              product.images.isNotEmpty
-                  ? product.images[0].src
-                  : 'https://via.placeholder.com/150',
-              height: 150,
-              width: 150,
-              fit: BoxFit.cover,
-              errorBuilder: (context, error, stackTrace) {
-                return const Icon(Icons.broken_image,
-                    size: 100, color: Colors.grey);
-              },
-            ),
+    return InkWell(
+        onTap: () {
+          Provider.of<ProductProvider>(context, listen: false)
+              .setProduct(product.id, product.slug);
+          Navigator.push(
+              context, MaterialPageRoute(builder: (context) => DetailScreen()));
+        },
+        child: Container(
+          width: 150,
+          height: 250,
+          margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12),
+            boxShadow: [
+              BoxShadow(
+                  color: Colors.grey.withOpacity(0.2),
+                  blurRadius: 6,
+                  spreadRadius: 2)
+            ],
           ),
-          const SizedBox(height: 2),
-
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  // Product Title
-                  Text(
-                    product.title,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                        fontSize: 12, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 1),
-
-                  // Product Price
-                  Text(
-                    FormatCurrency().format(product.price),
-                    style: const TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.red),
-                  ),
-                ],
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              // Product Image
+              ClipRRect(
+                borderRadius:
+                    const BorderRadius.vertical(top: Radius.circular(12)),
+                child: Image.network(
+                  product.images.isNotEmpty
+                      ? product.images[0].src
+                      : 'https://via.placeholder.com/150',
+                  height: 150,
+                  width: 150,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) {
+                    return const Icon(Icons.broken_image,
+                        size: 100, color: Colors.grey);
+                  },
+                ),
               ),
-            ),
+              const SizedBox(height: 2),
+
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      // Product Title
+                      Text(
+                        product.title,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                            fontSize: 12, fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(height: 1),
+
+                      // Product Price
+                      Text(
+                        FormatCurrency().format(product.price),
+                        style: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.red),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 10),
+              // Product Title
+            ],
           ),
-          const SizedBox(height: 10),
-          // Product Title
-        ],
-      ),
-    );
+        ));
   }
 }

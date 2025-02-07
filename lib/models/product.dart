@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:tech_shop_flutter/models/image.dart';
 
 class Product {
@@ -11,6 +9,7 @@ class Product {
   final String category;
   final String vendor;
   final double price;
+  final String slug;
   final String createAt;
   final String updateAt;
   final String deleteAt;
@@ -20,6 +19,7 @@ class Product {
     required this.id,
     required this.available,
     required this.title,
+    required this.slug,
     required this.description,
     required this.tags,
     required this.category,
@@ -33,12 +33,12 @@ class Product {
 
   // Factory method to create a Product object from a JSON map
   factory Product.fromJson(Map<String, dynamic> json) {
-   
     return Product(
       id: json['id'] ?? -1,
       available: json['available'] ?? '',
       title: json['title'] ?? '',
       description: json['description'] ?? '',
+      slug: json['slug'] ?? '',
       tags: json['tags'] ?? '',
       category: json['category'] ?? '',
       vendor: json['vendor'] ?? '',

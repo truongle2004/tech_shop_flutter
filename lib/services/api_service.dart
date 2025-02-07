@@ -2,24 +2,25 @@ import 'dart:convert';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:tech_shop_flutter/models/category.dart';
+import 'package:tech_shop_flutter/models/product.dart';
 import 'package:tech_shop_flutter/models/product_data.dart';
 
 class ApiService {
-  final String baseUrl = dotenv.env['PRODUCT_URL'] ?? '';
+  final String productUrl = dotenv.env['PRODUCT_URL'] ?? '';
 
   ApiService() {
-    if (baseUrl.isEmpty) {
+    if (productUrl.isEmpty) {
       throw Exception('PRODUCT_URL is not defined in the .env file');
     }
   }
 
   Future<dynamic> _get(String endpoint) async {
-    final res = await http.get(Uri.parse('$baseUrl$endpoint'));
+    final res = await http.get(Uri.parse('$productUrl$endpoint'));
 
     if (res.statusCode == 200) {
       return jsonDecode(utf8.decode(res.bodyBytes));
     } else {
-      print('endpoint: $baseUrl$endpoint');
+      print('endpoint: $productUrl$endpoint');
       throw Exception('Failed to load data, Status Code: ${res.statusCode}');
     }
   }
@@ -41,5 +42,10 @@ class ApiService {
   Future<List<String>> fetchCategorySuggestionsHomeScreen() async {
     final data = await _get('/suggestions');
     return List<String>.from(data);
+  }
+
+  Future<Product> fetchProductDetail(int id) async {
+    final data = await _get('/$id');
+    return Product.fromJson(data);
   }
 }
